@@ -5,7 +5,8 @@ from .output import *
 
 
 class PortScan:
-    def __init__(self, raw_ip: str, raw_port: str, thread: int) -> None:
+    def __init__(self, raw_ip: str, raw_port: str, thread: int, timeout: int) -> None:
+        self.timeout = timeout
         self.lock = threading.Lock()
         self.thread = thread
         self.ports: List[int] = []
@@ -50,6 +51,9 @@ class PortScan:
 
     def __formatNet(self):
         nets = []
+        if self.raw_ip.count('.') < 3:
+            self.ips.append(self.raw_ip)
+            return
         if ',' in self.raw_ip:
             nets = [i for i in self.raw_ip.strip().split(',')]
         else:
@@ -57,6 +61,7 @@ class PortScan:
         ok = [self.isNetwork(x) for x in nets]
         if False in ok:
             os._exit(1)
+        self.__formatIP()
 
     def __formatIP(self):
         for x in self.nets:
@@ -82,12 +87,12 @@ class PortScan:
 
     def check_port(self, ip: str, port: int):
         s = socket.socket()
-        s.settimeout(3)
+        s.settimeout(self.timeout)
         try:
             s.connect((ip, port))
             s.send(b'CP')
             with self.lock:
-                print('open\t{} : {}'.format(ip, port))
+                print('open\t{}:{}'.format(ip, port))
                 self.opens[ip][port] = None
                 data = s.recv(2048)
                 if data:
@@ -100,4 +105,3 @@ class PortScan:
     def format(self):
         self.__formatPort()
         self.__formatNet()
-        self.__formatIP()
