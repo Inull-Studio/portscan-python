@@ -2,7 +2,7 @@ import os
 import socket
 import sys, argparse, time, signal
 import threading
-from utils.icmp import ping
+from utils.icmp import alive
 from utils.portscan import PortScan
 from utils.service import default_port
 from utils.output import *
@@ -50,7 +50,7 @@ if __name__=='__main__':
         discover_start = time.time()
         with ThreadPoolExecutor(args.thread) as exec:
             for dst in ps.ips.copy():
-                tlist[dst] = exec.submit(ping, dst, timeout=args.timeout)
+                tlist[dst] = exec.submit(alive, dst, timeout=args.timeout)
             for t in tlist:
                 with main_lock:
                     if tlist[t].result():
