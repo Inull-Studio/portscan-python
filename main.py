@@ -39,9 +39,9 @@ if __name__=='__main__':
     parser = parse()
     args = parser.parse_args()
     print_args(args)
-    if not args.nodns:
-        if args.host.count('.') < 3:
-            host_ip = socket.gethostbyname(args.host)
+    # if not args.nodns:
+    #     if args.host.count('.') < 3:
+    #         args.host = socket.gethostbyname(args.host)
     ps = PortScan(args.host, args.port, args.thread, args.timeout)
     n_ips = []
     tlist = {}
