@@ -61,10 +61,12 @@ if __name__=='__main__':
         ps.portscan()
     if args.verbose:
         print_line('服务详情')
+        rows = []
         for ip, datas in ps.opens.items():
             for port, data in datas.items():
                 if data:
-                    print(ip, port, data_format(data))
+                    rows.append((ip, str(port), data_format(data)))
+            print_table(['HOST', 'PORT', 'SERVICE'], rows)
     print_line('结束')
     end = time.time()
     print('共用时:{:.2f}秒'.format(end - start))
