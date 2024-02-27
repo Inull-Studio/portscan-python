@@ -1,12 +1,9 @@
-import os
-import socket
-import sys, argparse, time, signal
-import threading
 from utils.icmp import alive
 from utils.portscan import PortScan
-from utils.service import default_port
+from utils.service import default_port, data_format
 from utils.output import *
 from utils.thread import ThreadPoolExecutor
+import os, argparse, time, signal, threading
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -28,14 +25,13 @@ def parse():
 
 def signal_handler(signal, frame):
     print('正在等待扫描结束..')
-    os._exit(-1)
+    os._exit(0)
 
 
 if __name__=='__main__':
     start = time.time()
     main_lock = threading.Lock()
     signal.signal(signal.SIGINT, signal_handler)
-    # try:
     parser = parse()
     args = parser.parse_args()
     print_args(args)
@@ -60,7 +56,7 @@ if __name__=='__main__':
         print('执行用时{:.2f}秒, 存活主机数量: {}'.format((time.time() - discover_start), len(ps.ips)))
     if not ps.ips:
         print('主机不存在，若确定存在使用 -nP 参数')
-        sys.exit()
+        os._exit(0)
     if not args.noscan:
         ps.portscan()
     if args.verbose:
@@ -68,9 +64,7 @@ if __name__=='__main__':
         for ip, datas in ps.opens.items():
             for port, data in datas.items():
                 if data:
-                    print(ip, port, data)
+                    print(ip, port, data_format(data))
     print_line('结束')
     end = time.time()
     print('共用时:{:.2f}秒'.format(end - start))
-    # except Exception as e:
-    #     print(e, e.__traceback__.tb_lineno)
